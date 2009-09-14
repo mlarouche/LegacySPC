@@ -1,0 +1,5 @@
+SET(legacyspc_disassembler_SRCS main.cpp)
+
+ADD_EXECUTABLE(legacyspc_disassembler ${legacyspc_disassembler_SRCS})
+
+TARGET_LINK_LIBRARIES(legacyspc_disassembler legacyspc)

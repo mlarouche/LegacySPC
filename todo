@@ -1,0 +1,32 @@
+TODO list:
+- Manage only one instance of SpcRunner without using the Singleton pattern
+  Use a static variable that works like QApplication
+- What shall we do with cycles ?
+- Create unit test for each opcode in the CPU
++ Logging Stream
++ Create support classes to SPC file loading
++ Implement SPC file loading (for the disassembler)
++ Implement ID666 Binary format
+- Implement rest of SPC File Loading (ex: DSP registers)
+- Implement Extended ID666 format
++ Create the disassembler, to see how real code behave and create efficient unit tests
+- Implement unit tests for most opcodes
+- Finish opcode implementation based on unit tests
+
+Logging system:
++Similiar to kDebug()
++should have lDebug(), lWarning(), lError(), lLog() methods that
+ return the logging stream objet
++Logging stream object
++Handle debug, warning, error and log types
++Debug should print function name
+
+Disassembler:
+-Output to stdout
+-Should have a graphical frontend
+
+Unit tests:
+-CMP opcodes
+-MOVW opcode
+-INCW, DECW opcode
+-ADDW, SUBW, CMPW opcode
