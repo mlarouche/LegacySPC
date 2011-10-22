@@ -1,6 +1,6 @@
 /*
  * LegacySPC - A portable object-oriented SPC emulator.
- * Copyright (c) 2007 by Michaël Larouche <larouche@kde.org>
+ * Copyright (c) 2007-2011 by Michaël Larouche <larouche@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Library General Public License as
@@ -23,7 +23,6 @@
 using namespace LegacySPC;
 
 CommandTestBase::CommandTestBase()
- : QObject(0)
 {
 	m_runner = new LegacySPC::SpcRunner();
 	m_proc = new LegacySPC::Processor(m_runner);
@@ -103,5 +102,3 @@ void CommandTestBase::processOpcode()
 {
 	processor()->processOpcode();
 }
-
-#include "commandtestbase.moc"

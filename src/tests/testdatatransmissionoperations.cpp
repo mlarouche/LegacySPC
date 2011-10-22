@@ -1,6 +1,6 @@
 /*
  * LegacySPC - A portable object-oriented SPC emulator.
- * Copyright (c) 2007 by Michaël Larouche <larouche@kde.org>
+ * Copyright (c) 2007-2011 by Michaël Larouche <larouche@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Library General Public License as
@@ -12,18 +12,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "testdatatransmissionoperations.h"
+#include <gtest/gtest.h>
 
+#include "commandtestbase.h"
 #include <legacyspc_debug.h>
 
 using namespace std;
 using namespace LegacySPC;
 
-TestDataTransmissionOperations::TestDataTransmissionOperations()
- : CommandTestBase()
-{}
-
-void TestDataTransmissionOperations::testMovImmediate()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovImmediate)
 {
 	const int numOpcodes = 14;
 	byte movOpcodes[numOpcodes] =
@@ -54,69 +51,69 @@ void TestDataTransmissionOperations::testMovImmediate()
 
 	// Test MOV A, #data
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0xf1 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->A()), 0xf1 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV X, #data
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0x3f );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->X()), 0x3f );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test MOV Y, #data
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0x00 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), true );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0x00 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), true );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test MOV A, X
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x3f );
-	QCOMPARE( int(processor()->registers()->X()), 0x3f );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x3f );
+	EXPECT_EQ( int(processor()->registers()->X()), 0x3f );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test Y, A
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0x3f );
-	QCOMPARE( int(processor()->registers()->A()), 0x3f );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0x3f );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x3f );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV Y, #
 	processOpcode();
 
 	// Test MOV A, Y
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0xb0 );
-	QCOMPARE( int(processor()->registers()->Y()), 0xb0 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->A()), 0xb0 );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0xb0 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV X, A
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0xb0 );
-	QCOMPARE( int(processor()->registers()->A()), 0xb0 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xb0 );
+	EXPECT_EQ( int(processor()->registers()->A()), 0xb0 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV SP, X
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->stackPointer()), 0xb0 );
-	QCOMPARE( int(processor()->registers()->X()), 0xb0 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->stackPointer()), 0xb0 );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xb0 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV X, SP
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0xb0 );
-	QCOMPARE( int(processor()->registers()->stackPointer()), 0xb0 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xb0 );
+	EXPECT_EQ( int(processor()->registers()->stackPointer()), 0xb0 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 }
 
-void TestDataTransmissionOperations::testMovIndirectX()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovIndirectX)
 {
 	const int dataSize = 12;
 	byte ramData[dataSize] =
@@ -138,19 +135,19 @@ void TestDataTransmissionOperations::testMovIndirectX()
 
 	// Test MOV A, (X)
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x24 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x24 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV A, #$45
 	processOpcode();
 	
 	// Test MOV (X), A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( processor()->registers()->X() ), 0x45 );
+	EXPECT_EQ( (int)runner()->memory()->readByte( processor()->registers()->X() ), 0x45 );
 }
 
-void TestDataTransmissionOperations::testMovIndirectXAutoIncrement()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovIndirectXAutoIncrement)
 {
 	const int dataSize = 19;
 	byte ramData[dataSize] =
@@ -180,10 +177,10 @@ void TestDataTransmissionOperations::testMovIndirectXAutoIncrement()
 	{
 		processOpcode();
 
-		QCOMPARE( int(processor()->registers()->A()), (int)ramData[i] );
-		QCOMPARE( int(processor()->registers()->X()), i+1 );
-		QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-		QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+		EXPECT_EQ( int(processor()->registers()->A()), (int)ramData[i] );
+		EXPECT_EQ( int(processor()->registers()->X()), i+1 );
+		EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+		EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 	}
 
 	// Process MOV X, #$00
@@ -193,11 +190,11 @@ void TestDataTransmissionOperations::testMovIndirectXAutoIncrement()
 
 	// Test MOV (X)+, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0), 0x56 );
-	QCOMPARE( int(processor()->registers()->X()), 1 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0), 0x56 );
+	EXPECT_EQ( int(processor()->registers()->X()), 1 );
 }
 
-void TestDataTransmissionOperations::testMovDirectPage()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovDirectPage)
 {
 	const int opcodeSize = 48;
 	byte opcodeData[opcodeSize] =
@@ -264,44 +261,44 @@ void TestDataTransmissionOperations::testMovDirectPage()
 	// Test MOV A, D$09
 	setDirectPage(false);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0xd4 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->A()), 0xd4 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV A, D$09 (with direct page on)
 	setDirectPage(true);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0xae );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->A()), 0xae );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV X, D$20
 	setDirectPage(false);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0xfe );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xfe );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV X, D$20 (with direct page on)
 	setDirectPage(true);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0xe3 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xe3 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV Y, D$40
 	setDirectPage(false);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0xf9 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0xf9 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV Y, D$40 (with direct page on)
 	setDirectPage(true);
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0x79 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0x79 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	setDirectPage(false);
 
@@ -310,36 +307,36 @@ void TestDataTransmissionOperations::testMovDirectPage()
 
 	// Test MOV A, D$09+X (DP OFF)
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x9b );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x9b );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Process MOV Y, #$03
 	processOpcode();
 
 	// Test MOV X, D$20+Y
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0x18 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->X()), 0x18 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV X, #$06
 	processOpcode();
 
 	// Test MOV Y, D$40+X
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0x6e );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0x6e );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test MOV D$20, #$00 (DP ON)
 	setDirectPage(true);
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x120), 0x0 );;
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x120), 0x0 );;
 
 	// Test MOV D$20, D$21 (DP ON)
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x120), 0x70 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x120), 0x70 );
 
 	// Process // MOV A, #$69, MOV X, #$34, MOV Y, #$23
 	for(int i=0; i<3; i++)
@@ -351,25 +348,25 @@ void TestDataTransmissionOperations::testMovDirectPage()
 
 	// Test MOV D$20, A (DP ON)
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0120), 0x69 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0120), 0x69 );
 	// Test MOV D$00+X, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0134), 0x69 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0134), 0x69 );
 	// Test MOV D$30, X
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0130), 0x34 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0130), 0x34 );
 	// Test MOV D$00+Y, X
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0123), 0x34 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0123), 0x34 );
 	// Test MOV D$40, Y
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0140), 0x23 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0140), 0x23 );
 	// Test MOV D$00+X, Y
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x0134), 0x23 );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x0134), 0x23 );
 }
 
-void TestDataTransmissionOperations::testMovAbsolute()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovAbsolute)
 {
 	const int opcodeSize = 34;
 	byte opcodeData[opcodeSize] =
@@ -413,58 +410,58 @@ void TestDataTransmissionOperations::testMovAbsolute()
 
 	// Test MOV A, $0068
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x2f );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x2f );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV X, #$05
 	processOpcode();
 
 	// Test MOV A, $0060+X
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x54 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x54 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV Y, #$03
 	processOpcode();
 
 	// Test MOV A, $0060+Y
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x5d );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x5d );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test MOV X, $0052
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->X()), 0xf9 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->X()), 0xf9 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV Y, $0034
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->Y()), 0xac );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), true );
+	EXPECT_EQ( int(processor()->registers()->Y()), 0xac );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), true );
 
 	// Test MOV $0012, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( 0x0012 ), 0x5d );
+	EXPECT_EQ( (int)runner()->memory()->readByte( 0x0012 ), 0x5d );
 	// MOV $0012+X, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( 0x0012+0xf9 ), 0x5d );
+	EXPECT_EQ( (int)runner()->memory()->readByte( 0x0012+0xf9 ), 0x5d );
 	// MOV $0012+Y, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( 0x0012+0xac ), 0x5d );
+	EXPECT_EQ( (int)runner()->memory()->readByte( 0x0012+0xac ), 0x5d );
 	// MOV $0120, X
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( 0x0120 ), 0xf9 );
+	EXPECT_EQ( (int)runner()->memory()->readByte( 0x0120 ), 0xf9 );
 	// MOV $0120, Y
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte( 0x0120 ), 0xac );
+	EXPECT_EQ( (int)runner()->memory()->readByte( 0x0120 ), 0xac );
 }
 
-void TestDataTransmissionOperations::testMovIndirectDirectPage()
+TEST_F(CommandTestBase, TestDataTransmissionOperations_TestMovIndirectDirectPage)
 {
 	const int opcodeSize = 16;
 	byte opcodeData[opcodeSize] =
@@ -507,34 +504,31 @@ void TestDataTransmissionOperations::testMovIndirectDirectPage()
 
 	// Test MOV A, [D$64+X]
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x12 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x12 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Test MOV A, [D$65]+Y
 	processOpcode();
-	QCOMPARE( int(processor()->registers()->A()), 0x12 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( int(processor()->registers()->A()), 0x12 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV A, #$69
 	processOpcode();
 
 	// Test MOV [D$64+X], A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x51), 0x69 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x51), 0x69 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 
 	// Process MOV A, #$45
 	processOpcode();
 
 	// Test MOV [D$65]+Y, A
 	processOpcode();
-	QCOMPARE( (int)runner()->memory()->readByte(0x51), 0x45 );
-	QCOMPARE( processor()->isProgramStatusFlagSet(ZeroFlag), false );
-	QCOMPARE( processor()->isProgramStatusFlagSet(NegativeFlag), false );
+	EXPECT_EQ( (int)runner()->memory()->readByte(0x51), 0x45 );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(ZeroFlag), false );
+	EXPECT_EQ( processor()->isProgramStatusFlagSet(NegativeFlag), false );
 }
-
-QTEST_APPLESS_MAIN ( TestDataTransmissionOperations )
-#include "testdatatransmissionoperations.moc"

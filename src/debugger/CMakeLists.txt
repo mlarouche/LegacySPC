@@ -18,4 +18,4 @@ QT4_AUTOMOC(${debugger_SRCS})
 
 ADD_EXECUTABLE(legacyspc_debugger ${debugger_SRCS})
 
-TARGET_LINK_LIBRARIES(legacyspc_debugger ${QT_QTGUI_LIBRARY} legacyspc)
+TARGET_LINK_LIBRARIES(legacyspc_debugger ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} legacyspc)

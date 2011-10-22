@@ -1,6 +1,6 @@
 /*
  * LegacySPC - A portable object-oriented SPC emulator.
- * Copyright (c) 2007 by Michaël Larouche <larouche@kde.org>
+ * Copyright (c) 2007-2011 by Michaël Larouche <larouche@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Library General Public License as
@@ -15,9 +15,8 @@
 #ifndef LEGACYSPC_COMMANDTESTBASE_H
 #define LEGACYSPC_COMMANDTESTBASE_H
 
-// Qt includes
-#include <QtTest>
-#include <QtCore/QObject>
+// gtest includes
+#include <gtest/gtest.h>
 
 // LegacySPC includes
 #include <cpuopcodes.h>
@@ -32,9 +31,8 @@
 
 using namespace LegacySPC;
 
-class CommandTestBase : public QObject
+class CommandTestBase : public ::testing::Test
 {
-	Q_OBJECT
 public:
 	CommandTestBase();
 	virtual ~CommandTestBase();

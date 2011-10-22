@@ -1416,6 +1416,8 @@ void Processor::processOpcode()
 		case Dbnz_Y:
 		{
 			word newPc = getAddress(RelativeAddressing);
+			setYRegister( registers()->Y() - 1 );
+			
 			if( registers()->Y() != 0 )
 			{
 				registers()->setProgramCounter( newPc );
