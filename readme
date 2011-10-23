@@ -1,0 +1,13 @@
+LegacySPC is a C++ library that implements the 8bit Sony SPC700 CPU and its DSP core.
+This processor was used in the Super Nintendo as a coprocessor for audio and music.
+
+I'm developing this project as a learning experience about CPU emulation and DSP implementation. The goal is to have clean and understandable code, efficiently is a nice to have :) 
+
+Dependencies:
+ - CMake to build http://www.cmake.org/
+ - Qt (for the debugger) http://qt.nokia.com
+
+Included dependencies:
+ - Google Mock/Test for the unit tests http://code.google.com/p/googlemock/
+ - QHexEdit for the hex viewer http://code.google.com/p/qhexedit2/
+ 
