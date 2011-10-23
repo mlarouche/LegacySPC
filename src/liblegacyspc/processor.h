@@ -1,6 +1,6 @@
 /*
  * LegacySPC - A portable object-oriented SPC emulator.
- * Copyright 2007 by Michaël Larouche <larouche@kde.org>
+ * Copyright 2007-2011 by Michaël Larouche <larouche@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Library General Public License as
@@ -58,6 +58,15 @@ public:
 	 */
 	bool isProgramStatusFlagSet(ProgramStatusFlags value) const;
 
+	/**
+	 * @brief Get last read or written address by the processor
+	 *
+	 * Used by the memory viewer to view memory data used by the processor
+	 *
+	 * @return last address
+	 */
+	word lastAddress() const;
+	
 private:
 	enum AddressingMode
 	{
@@ -262,11 +271,11 @@ private:
 
 	/**
 	 * @internal
-	 * @brief Get address based on addressing mode
+	 * @brief Decode address based on addressing mode
 	 * @param mode Addressing mode value in AddressingMode enum
 	 * @return Absolute address in memory
 	 */
-	word getAddress(AddressingMode mode);
+	word decodeAddress(AddressingMode mode);
 
 	/**
 	 * @internal

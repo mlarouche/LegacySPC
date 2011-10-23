@@ -1,6 +1,6 @@
 /*
  * LegacySPC - A portable object-oriented SPC emulator.
- * Copyright 2007 by Michaël Larouche <larouche@kde.org>
+ * Copyright 2007-2011 by Michaël Larouche <larouche@kde.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Library General Public License as
@@ -39,7 +39,7 @@ class Processor::Private
 {
 public:
 	Private()
-	 : runner(0), regs(0)
+	 : runner(0), regs(0), lastAddress(0)
 	{
 		regs = new ProcessorRegisters;
 	}
@@ -51,6 +51,7 @@ public:
 	// TODO: use a smart pointer
 	SpcRunner *runner;
 	ProcessorRegisters *regs;
+	word lastAddress;
 };
 
 Processor::Processor(SpcRunner *runner)
@@ -62,6 +63,11 @@ Processor::Processor(SpcRunner *runner)
 Processor::~Processor()
 {
 	delete d;
+}
+
+word Processor::lastAddress() const
+{
+	return d->lastAddress;
 }
 
 void Processor::processOpcode()
@@ -79,48 +85,48 @@ void Processor::processOpcode()
 		}
 		case Mov_A_IndirectX:
 		{
-			setARegister( readByte( getAddress(IndirectXAddressing) ) );
+			setARegister( readByte( decodeAddress(IndirectXAddressing) ) );
 			break;
 		}
 		case Mov_A_IndirectXAutoIncrement:
 		{
-			setARegister( readByte( getAddress(IndirectXAddressing) ) );
+			setARegister( readByte( decodeAddress(IndirectXAddressing) ) );
 			registers()->incrementX();
 			break;
 		}
 		case Mov_A_DirectPage:
 		{
-			setARegister( readByte( getAddress(DirectPageAddressing) ) );
+			setARegister( readByte( decodeAddress(DirectPageAddressing) ) );
 			break;
 		}
 		case Mov_A_DirectPagePlusX:
 		{
-			setARegister( readByte( getAddress(DirectPagePlusXAddressing) ) );
+			setARegister( readByte( decodeAddress(DirectPagePlusXAddressing) ) );
 			break;
 		}
 		case Mov_A_Absolute:
 		{
-			setARegister( readByte( getAddress(AbsoluteAddressing) ) );
+			setARegister( readByte( decodeAddress(AbsoluteAddressing) ) );
 			break;
 		}
 		case Mov_A_AbsolutePlusX:
 		{
-			setARegister( readByte( getAddress(AbsolutePlusXAddressing) ) );
+			setARegister( readByte( decodeAddress(AbsolutePlusXAddressing) ) );
 			break;
 		}
 		case Mov_A_AbsolutePlusY:
 		{
-			setARegister( readByte( getAddress(AbsolutePlusYAddressing) ) );
+			setARegister( readByte( decodeAddress(AbsolutePlusYAddressing) ) );
 			break;
 		}
 		case Mov_A_IndirectDirectPagePlusX:
 		{
-			setARegister( readByte( getAddress(IndirectDirectPagePlusXAddressing) ) );
+			setARegister( readByte( decodeAddress(IndirectDirectPagePlusXAddressing) ) );
 			break;
 		}
 		case Mov_A_IndirectDirectPagePlusY:
 		{
-			setARegister( readByte( getAddress(IndirectDirectPagePlusYAddressing) ) );
+			setARegister( readByte( decodeAddress(IndirectDirectPagePlusYAddressing) ) );
 			break;
 		}
 		case Mov_X_ImmediateData:
@@ -130,17 +136,17 @@ void Processor::processOpcode()
 		}
 		case Mov_X_DirectPage:
 		{
-			setXRegister( readByte( getAddress(DirectPageAddressing) ) );
+			setXRegister( readByte( decodeAddress(DirectPageAddressing) ) );
 			break;
 		}
 		case Mov_X_DirectPagePlusY:
 		{
-			setXRegister( readByte( getAddress(DirectPagePlusYAddressing) ) );
+			setXRegister( readByte( decodeAddress(DirectPagePlusYAddressing) ) );
 			break;
 		}
 		case Mov_X_Absolute:
 		{
-			setXRegister( readWord( getAddress(AbsoluteAddressing) ) );
+			setXRegister( readWord( decodeAddress(AbsoluteAddressing) ) );
 			break;
 		}
 		case Mov_Y_ImmediateData:
@@ -150,93 +156,93 @@ void Processor::processOpcode()
 		}
 		case Mov_Y_DirectPage:
 		{
-			setYRegister( readByte( getAddress(DirectPageAddressing) ) );
+			setYRegister( readByte( decodeAddress(DirectPageAddressing) ) );
 			break;
 		}
 		case Mov_Y_DirectPagePlusX:
 		{
-			setYRegister( readByte( getAddress(DirectPagePlusXAddressing) ) );
+			setYRegister( readByte( decodeAddress(DirectPagePlusXAddressing) ) );
 			break;
 		}
 		case Mov_Y_Absolute:
 		{
-			setYRegister( readWord( getAddress(AbsoluteAddressing) ) );
+			setYRegister( readWord( decodeAddress(AbsoluteAddressing) ) );
 			break;
 		}
 		case Mov_IndirectX_A:
 		{
-			writeByte( getAddress(IndirectXAddressing), registers()->A() );
+			writeByte( decodeAddress(IndirectXAddressing), registers()->A() );
 			break;
 		}
 		case Mov_IndirectXAutoIncrement_A:
 		{
-			writeByte( getAddress(IndirectXAddressing), registers()->A() );
+			writeByte( decodeAddress(IndirectXAddressing), registers()->A() );
 			registers()->incrementX();
 			break;
 		}
 		case Mov_DirectPage_A:
 		{
-			writeByte( getAddress(DirectPageAddressing), registers()->A() );
+			writeByte( decodeAddress(DirectPageAddressing), registers()->A() );
 			break;
 		}
 		case Mov_DirectPagePlusX_A:
 		{
-			writeByte( getAddress(DirectPagePlusXAddressing), registers()->A() );
+			writeByte( decodeAddress(DirectPagePlusXAddressing), registers()->A() );
 			break;
 		}
 		case Mov_Absolute_A:
 		{
-			writeByte( getAddress(AbsoluteAddressing), registers()->A() );
+			writeByte( decodeAddress(AbsoluteAddressing), registers()->A() );
 			break;
 		}
 		case Mov_AbsolutePlusX_A:
 		{
-			writeByte( getAddress(AbsolutePlusXAddressing), registers()->A() );
+			writeByte( decodeAddress(AbsolutePlusXAddressing), registers()->A() );
 			break;
 		}
 		case Mov_AbsolutePlusY_A:
 		{
-			writeByte( getAddress(AbsolutePlusYAddressing), registers()->A() );
+			writeByte( decodeAddress(AbsolutePlusYAddressing), registers()->A() );
 			break;
 		}
 		case Mov_IndirectDirectPagePlusX_A:
 		{
-			writeByte( getAddress(IndirectDirectPagePlusXAddressing), registers()->A() );
+			writeByte( decodeAddress(IndirectDirectPagePlusXAddressing), registers()->A() );
 			break;
 		}
 		case Mov_IndirectDirectPagePlusY_A:
 		{
-			writeByte( getAddress(IndirectDirectPagePlusYAddressing), registers()->A() );
+			writeByte( decodeAddress(IndirectDirectPagePlusYAddressing), registers()->A() );
 			break;
 		}
 		case Mov_DirectPage_X:
 		{
-			writeByte( getAddress(DirectPageAddressing), registers()->X() );
+			writeByte( decodeAddress(DirectPageAddressing), registers()->X() );
 			break;
 		}
 		case Mov_DirectPagePlusY_X:
 		{
-			writeByte( getAddress(DirectPagePlusYAddressing), registers()->X() );
+			writeByte( decodeAddress(DirectPagePlusYAddressing), registers()->X() );
 			break;
 		}
 		case Mov_Absolute_X:
 		{
-			writeByte( getAddress(AbsoluteAddressing), registers()->X() );
+			writeByte( decodeAddress(AbsoluteAddressing), registers()->X() );
 			break;
 		}
 		case Mov_DirectPage_Y:
 		{
-			writeByte( getAddress(DirectPageAddressing), registers()->Y() );
+			writeByte( decodeAddress(DirectPageAddressing), registers()->Y() );
 			break;
 		}
 		case Mov_DirectPagePlusX_Y:
 		{
-			writeByte( getAddress(DirectPagePlusXAddressing), registers()->Y() );
+			writeByte( decodeAddress(DirectPagePlusXAddressing), registers()->Y() );
 			break;
 		}
 		case Mov_Absolute_Y:
 		{
-			writeByte( getAddress(AbsoluteAddressing), registers()->Y() );
+			writeByte( decodeAddress(AbsoluteAddressing), registers()->Y() );
 			break;
 		}
 		case Mov_A_X:
@@ -271,13 +277,13 @@ void Processor::processOpcode()
 		}
 		case Mov_DirectPage_DirectPage:
 		{
-			word tempAddress = getAddress(DirectPageAddressing);
-			writeByte( tempAddress, readByte( getAddress(DirectPageAddressing) ) );
+			word tempAddress = decodeAddress(DirectPageAddressing);
+			writeByte( tempAddress, readByte( decodeAddress(DirectPageAddressing) ) );
 			break;
 		}
 		case Mov_DirectPage_ImmediateData:
 		{
-			word tempAddress = getAddress(DirectPageAddressing);
+			word tempAddress = decodeAddress(DirectPageAddressing);
 			writeByte( tempAddress, readByte() );
 			break;
 		}
@@ -288,70 +294,70 @@ void Processor::processOpcode()
 		}
 		case Adc_IndirectX:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
 			setARegister( addWithCarry( registers()->A(), xValue ) );
 			break;
 		}
 		case Adc_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_DirectPagePlusX:
 		{
-			byte value = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			setARegister( addWithCarry( registers()->A(), value) );
 			break;
 		}
 		case Adc_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			setARegister( addWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Adc_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
-			writeByte( getAddress(IndirectXAddressing), addWithCarry(xValue, yValue) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
+			writeByte( decodeAddress(IndirectXAddressing), addWithCarry(xValue, yValue) );
 			break;
 		}
 		case Adc_DirectPage_DirectPage:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte destinationDpValue = readByte( destination );
-			byte sourceDpValue = readByte( getAddress(DirectPageAddressing) );
+			byte sourceDpValue = readByte( decodeAddress(DirectPageAddressing) );
 			writeByte( destination, addWithCarry(destinationDpValue, sourceDpValue) );
 			break;
 		}
 		case Adc_DirectPage_ImmediateData:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte dpValue = readByte( destination );
 			writeByte( destination, addWithCarry(dpValue, readByte()) );
 			break;
@@ -363,70 +369,70 @@ void Processor::processOpcode()
 		}
 		case Sbc_IndirectX:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), xValue ) );
 			break;
 		}
 		case Sbc_DirectPage:
 		{
-			byte dpValue = readByte( getAddress(DirectPageAddressing) );
+			byte dpValue = readByte( decodeAddress(DirectPageAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), dpValue ) );
 			break;
 		}
 		case Sbc_DirectPagePlusX:
 		{
-			byte dpValue = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte dpValue = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), dpValue ) );
 			break;
 		}
 		case Sbc_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Sbc_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Sbc_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Sbc_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Sbc_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			setARegister( subtractWithCarry( registers()->A(), value ) );
 			break;
 		}
 		case Sbc_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
-			writeByte( getAddress(IndirectXAddressing) , subtractWithCarry(xValue, yValue) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
+			writeByte( decodeAddress(IndirectXAddressing) , subtractWithCarry(xValue, yValue) );
 			break;
 		}
 		case Sbc_DirectPage_DirectPage:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte destinationDpValue = readByte( destination );
-			byte sourceDpValue = readByte( getAddress(DirectPageAddressing) );
+			byte sourceDpValue = readByte( decodeAddress(DirectPageAddressing) );
 			writeByte( destination, subtractWithCarry(destinationDpValue, sourceDpValue) );
 			break;
 		}
 		case Sbc_DirectPage_ImmediateData:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte dpValue = readByte( destination );
 			writeByte( destination, subtractWithCarry(dpValue, readByte()) );
 			break;
@@ -439,69 +445,69 @@ void Processor::processOpcode()
 		}
 		case Cmp_A_IndirectX:
 		{
-			byte value = readByte( getAddress(IndirectXAddressing) );
+			byte value = readByte( decodeAddress(IndirectXAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_DirectPagePlusX:
 		{
-			byte value = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_A_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			compare(registers()->A(), value);
 			break;
 		}
 		case Cmp_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
 			compare( xValue, yValue );
 			break;
 		}
 		case Cmp_DirectPage_DirectPage:
 		{
-			byte firstValue = readByte( getAddress(DirectPageAddressing) );
-			byte secondValue = readByte( getAddress(DirectPageAddressing) );
+			byte firstValue = readByte( decodeAddress(DirectPageAddressing) );
+			byte secondValue = readByte( decodeAddress(DirectPageAddressing) );
 			compare( firstValue, secondValue );
 			break;
 		}
 		case Cmp_DirectPage_ImmediateData:
 		{
-			byte dpValue = readByte( getAddress(DirectPageAddressing) );
+			byte dpValue = readByte( decodeAddress(DirectPageAddressing) );
 			byte immValue = readByte();
 			compare( dpValue, immValue );
 			break;
@@ -514,13 +520,13 @@ void Processor::processOpcode()
 		}
 		case Cmp_X_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			compare( registers()->X(), value );
 			break;
 		}
 		case Cmp_X_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			compare( registers()->X(), value );
 			break;
 		}
@@ -532,13 +538,13 @@ void Processor::processOpcode()
 		}
 		case Cmp_Y_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			compare( registers()->Y(), value );
 			break;
 		}
 		case Cmp_Y_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			compare( registers()->Y(), value );
 			break;
 		}
@@ -550,70 +556,70 @@ void Processor::processOpcode()
 		}
 		case And_IndirectX:
 		{
-			byte value = readByte( getAddress(IndirectXAddressing) );
+			byte value = readByte( decodeAddress(IndirectXAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_DirectPagePlusX:
 		{
-			byte value = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			setARegister( doAnd(registers()->A(), value) );
 			break;
 		}
 		case And_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
-			writeByte( getAddress(IndirectXAddressing) , doAnd(xValue, yValue) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
+			writeByte( decodeAddress(IndirectXAddressing) , doAnd(xValue, yValue) );
 			break;
 		}
 		case And_DirectPage_DirectPage:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte destinationDpValue = readByte( destination );
-			byte sourceDpValue = readByte( getAddress(DirectPageAddressing) );
+			byte sourceDpValue = readByte( decodeAddress(DirectPageAddressing) );
 			writeByte( destination, doAnd(destinationDpValue, sourceDpValue) );
 			break;
 		}
 		case And_DirectPage_ImmediateData:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte dpValue = readByte( destination );
 			writeByte( destination, doAnd(dpValue, readByte()) );
 			break;
@@ -626,70 +632,70 @@ void Processor::processOpcode()
 		}
 		case Or_IndirectX:
 		{
-			byte value = readByte( getAddress(IndirectXAddressing) );
+			byte value = readByte( decodeAddress(IndirectXAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_DirectPagePlusX:
 		{
-			byte value = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			setARegister( doOr(registers()->A(), value) );
 			break;
 		}
 		case Or_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
-			writeByte( getAddress(IndirectXAddressing) , doOr(xValue, yValue) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
+			writeByte( decodeAddress(IndirectXAddressing) , doOr(xValue, yValue) );
 			break;
 		}
 		case Or_DirectPage_DirectPage:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte destinationDpValue = readByte( destination );
-			byte sourceDpValue = readByte( getAddress(DirectPageAddressing) );
+			byte sourceDpValue = readByte( decodeAddress(DirectPageAddressing) );
 			writeByte( destination, doOr(destinationDpValue, sourceDpValue) );
 			break;
 		}
 		case Or_DirectPage_ImmediateData:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte dpValue = readByte( destination );
 			writeByte( destination, doOr(dpValue, readByte()) );
 			break;
@@ -702,70 +708,70 @@ void Processor::processOpcode()
 		}
 		case Eor_IndirectX:
 		{
-			byte value = readByte( getAddress(IndirectXAddressing) );
+			byte value = readByte( decodeAddress(IndirectXAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_DirectPage:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_DirectPagePlusX:
 		{
-			byte value = readByte( getAddress(DirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(DirectPagePlusXAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_Absolute:
 		{
-			byte value = readByte( getAddress(AbsoluteAddressing) );
+			byte value = readByte( decodeAddress(AbsoluteAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_AbsolutePlusX:
 		{
-			byte value = readByte( getAddress(AbsolutePlusXAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusXAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_AbsolutePlusY:
 		{
-			byte value = readByte( getAddress(AbsolutePlusYAddressing) );
+			byte value = readByte( decodeAddress(AbsolutePlusYAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_IndirectDirectPagePlusX:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusXAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusXAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_IndirectDirectPagePlusY:
 		{
-			byte value = readByte( getAddress(IndirectDirectPagePlusYAddressing) );
+			byte value = readByte( decodeAddress(IndirectDirectPagePlusYAddressing) );
 			setARegister( doEor(registers()->A(), value) );
 			break;
 		}
 		case Eor_IndirectXY:
 		{
-			byte xValue = readByte( getAddress(IndirectXAddressing) );
-			byte yValue = readByte( getAddress(IndirectYAddressing) );
-			writeByte( getAddress(IndirectXAddressing) , doEor(xValue, yValue) );
+			byte xValue = readByte( decodeAddress(IndirectXAddressing) );
+			byte yValue = readByte( decodeAddress(IndirectYAddressing) );
+			writeByte( decodeAddress(IndirectXAddressing) , doEor(xValue, yValue) );
 			break;
 		}
 		case Eor_DirectPage_DirectPage:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte destinationDpValue = readByte( destination );
-			byte sourceDpValue = readByte( getAddress(DirectPageAddressing) );
+			byte sourceDpValue = readByte( decodeAddress(DirectPageAddressing) );
 			writeByte( destination, doEor(destinationDpValue, sourceDpValue) );
 			break;
 		}
 		case Eor_DirectPage_ImmediateData:
 		{
-			word destination = getAddress(DirectPageAddressing);
+			word destination = decodeAddress(DirectPageAddressing);
 			byte dpValue = readByte( destination );
 			writeByte( destination, doEor(dpValue, readByte()) );
 			break;
@@ -781,7 +787,7 @@ void Processor::processOpcode()
 			break;
 		case Inc_DirectPage:
 		{
-			word tempAddress = getAddress(DirectPageAddressing);
+			word tempAddress = decodeAddress(DirectPageAddressing);
 			byte incValue = readByte(tempAddress)+1;
 			writeByte( tempAddress, incValue );
 
@@ -791,7 +797,7 @@ void Processor::processOpcode()
 		}
 		case Inc_DirectPagePlusX:
 		{
-			word tempAddress = getAddress(DirectPagePlusXAddressing);
+			word tempAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte incValue = readByte(tempAddress)+1;
 			writeByte( tempAddress, incValue );
 
@@ -801,7 +807,7 @@ void Processor::processOpcode()
 		}
 		case Inc_Absolute:
 		{
-			word tempAddress = getAddress(AbsoluteAddressing);
+			word tempAddress = decodeAddress(AbsoluteAddressing);
 			byte incValue = readByte(tempAddress)+1;
 			writeByte( tempAddress, incValue );
 
@@ -820,7 +826,7 @@ void Processor::processOpcode()
 			break;
 		case Dec_DirectPage:
 		{
-			word tempAddress = getAddress(DirectPageAddressing);
+			word tempAddress = decodeAddress(DirectPageAddressing);
 			byte decValue = readByte(tempAddress)-1;
 			writeByte( tempAddress, decValue );
 
@@ -830,7 +836,7 @@ void Processor::processOpcode()
 		}
 		case Dec_DirectPagePlusX:
 		{
-			word tempAddress = getAddress(DirectPagePlusXAddressing);
+			word tempAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte decValue = readByte(tempAddress)-1;
 			writeByte( tempAddress, decValue );
 
@@ -840,7 +846,7 @@ void Processor::processOpcode()
 		}
 		case Dec_Absolute:
 		{
-			word tempAddress = getAddress(AbsoluteAddressing);
+			word tempAddress = decodeAddress(AbsoluteAddressing);
 			byte decValue = readByte(tempAddress)-1;
 			writeByte( tempAddress, decValue );
 
@@ -855,21 +861,21 @@ void Processor::processOpcode()
 		}
 		case Asl_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
+			word dpAddress = decodeAddress(DirectPageAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doAsl(tempValue) );
 			break;
 		}
 		case Asl_DirectPagePlusX:
 		{
-			word dpAddress = getAddress(DirectPagePlusXAddressing);
+			word dpAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doAsl(tempValue) );
 			break;
 		}
 		case Asl_Absolute:
 		{
-			word address = getAddress(AbsoluteAddressing);
+			word address = decodeAddress(AbsoluteAddressing);
 			byte tempValue = readByte( address );
 			writeByte( address, doAsl(tempValue) );
 			break;
@@ -881,21 +887,21 @@ void Processor::processOpcode()
 		}
 		case Lsr_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
+			word dpAddress = decodeAddress(DirectPageAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doLsr(tempValue) );
 			break;
 		}
 		case Lsr_DirectPageX:
 		{
-			word dpAddress = getAddress(DirectPagePlusXAddressing);
+			word dpAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doAsl(tempValue) );
 			break;
 		}
 		case Lsr_Absolute:
 		{
-			word address = getAddress(AbsoluteAddressing);
+			word address = decodeAddress(AbsoluteAddressing);
 			byte tempValue = readByte( address );
 			writeByte( address, doAsl(tempValue) );
 			break;
@@ -907,21 +913,21 @@ void Processor::processOpcode()
 		}
 		case Rol_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
+			word dpAddress = decodeAddress(DirectPageAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doRol(tempValue) );
 			break;
 		}
 		case Rol_DirectPagePlusX:
 		{
-			word dpAddress = getAddress(DirectPagePlusXAddressing);
+			word dpAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doRol(tempValue) );
 			break;
 		}
 		case Rol_Absolute:
 		{
-			word address = getAddress(AbsoluteAddressing);
+			word address = decodeAddress(AbsoluteAddressing);
 			byte tempValue = readByte( address );
 			writeByte( address, doRol(tempValue) );
 			break;
@@ -933,21 +939,21 @@ void Processor::processOpcode()
 		}
 		case Ror_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
+			word dpAddress = decodeAddress(DirectPageAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doRor(tempValue) );
 			break;
 		}
 		case Ror_DirectPagePlusX:
 		{
-			word dpAddress = getAddress(DirectPagePlusXAddressing);
+			word dpAddress = decodeAddress(DirectPagePlusXAddressing);
 			byte tempValue = readByte( dpAddress );
 			writeByte( dpAddress, doRor(tempValue) );
 			break;
 		}
 		case Ror_Absolute:
 		{
-			word address = getAddress(AbsoluteAddressing);
+			word address = decodeAddress(AbsoluteAddressing);
 			byte tempValue = readByte( address );
 			writeByte( address, doRor(tempValue) );
 			break;
@@ -960,7 +966,7 @@ void Processor::processOpcode()
 		}
 		case Movw_YA_DirectPage:
 		{
-			word value = readWord( getAddress(DirectPageAddressing) );
+			word value = readWord( decodeAddress(DirectPageAddressing) );
 			registers()->setYA( value );
 
 			updateZeroFlag( byte(value) );
@@ -969,14 +975,14 @@ void Processor::processOpcode()
 		}
 		case Movw_DirectPage_YA:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
+			word dpAddress = decodeAddress(DirectPageAddressing);
 			writeWord( dpAddress, registers()->YA() );
 			break;
 		}
 		case Incw_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
-			word value = readWord( getAddress(DirectPageAddressing) ) + 1;
+			word dpAddress = decodeAddress(DirectPageAddressing);
+			word value = readWord( decodeAddress(DirectPageAddressing) ) + 1;
 			writeWord( dpAddress, value );
 
 			updateZeroFlag( byte(value) );
@@ -985,8 +991,8 @@ void Processor::processOpcode()
 		}
 		case Decw_DirectPage:
 		{
-			word dpAddress = getAddress(DirectPageAddressing);
-			word value = readWord( getAddress(DirectPageAddressing) ) - 1;
+			word dpAddress = decodeAddress(DirectPageAddressing);
+			word value = readWord( decodeAddress(DirectPageAddressing) ) - 1;
 			writeWord( dpAddress, value );
 
 			updateZeroFlag( byte(value) );
@@ -995,7 +1001,7 @@ void Processor::processOpcode()
 		}
 		case Addw_YA_DirectPage:
 		{
-			word dpValue = readWord( getAddress(DirectPageAddressing) );
+			word dpValue = readWord( decodeAddress(DirectPageAddressing) );
 			int result = dpValue + registers()->YA();
 		
 			registers()->setYA( word(result) );
@@ -1025,7 +1031,7 @@ void Processor::processOpcode()
 		}
 		case Subw_YA_DirectPage:
 		{
-			word dpValue = readWord( getAddress(DirectPageAddressing) );
+			word dpValue = readWord( decodeAddress(DirectPageAddressing) );
 			int result = registers()->YA() - dpValue;
 		
 			registers()->setYA( result );
@@ -1053,7 +1059,7 @@ void Processor::processOpcode()
 		}
 		case Cmpw_YA_DirectPage:
 		{
-			word dpValue = readWord( getAddress(DirectPageAddressing) );
+			word dpValue = readWord( decodeAddress(DirectPageAddressing) );
 			short result = static_cast<short>(registers()->YA()) - static_cast<short>(dpValue);
 			if( result >= 0 )
 			{
@@ -1148,12 +1154,12 @@ void Processor::processOpcode()
 		}
 		case Bra_BranchAlways:
 		{
-			registers()->setProgramCounter( getAddress(RelativeAddressing) );
+			registers()->setProgramCounter( decodeAddress(RelativeAddressing) );
 			break;
 		}
 		case Beq_BranchZ1:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isProgramStatusFlagSet(ZeroFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1162,7 +1168,7 @@ void Processor::processOpcode()
 		}
 		case Bne_BranchZ0:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isProgramStatusFlagSet(ZeroFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1171,7 +1177,7 @@ void Processor::processOpcode()
 		}
 		case Bcs_BranchC1:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isProgramStatusFlagSet(CarryFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1180,7 +1186,7 @@ void Processor::processOpcode()
 		}
 		case Bcc_BranchC0:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isProgramStatusFlagSet(CarryFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1189,7 +1195,7 @@ void Processor::processOpcode()
 		}
 		case Bvs_BranchV1:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isProgramStatusFlagSet(OverflowFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1198,7 +1204,7 @@ void Processor::processOpcode()
 		}
 		case Bvc_BranchV0:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isProgramStatusFlagSet(OverflowFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1207,7 +1213,7 @@ void Processor::processOpcode()
 		}
 		case Bmi_BranchN1:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isProgramStatusFlagSet(NegativeFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1216,7 +1222,7 @@ void Processor::processOpcode()
 		}
 		case Bpl_BranchN0:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isProgramStatusFlagSet(NegativeFlag) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1225,8 +1231,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit0:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(0, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1235,8 +1241,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit1:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(1, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1245,8 +1251,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit2:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(2, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1255,8 +1261,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit3:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(3, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1265,8 +1271,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit4:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(4, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1275,8 +1281,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit5:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(5, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1285,8 +1291,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit6:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(6, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1295,8 +1301,8 @@ void Processor::processOpcode()
 		}
 		case Bbc_BranchBit7:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( !isBitSet(7, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1305,8 +1311,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit0:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(0, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1315,8 +1321,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit1:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(1, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1325,8 +1331,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit2:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(2, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1335,8 +1341,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit3:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(3, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1345,8 +1351,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit4:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(4, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1355,8 +1361,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit5:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(5, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1365,8 +1371,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit6:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(6, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1375,8 +1381,8 @@ void Processor::processOpcode()
 		}
 		case Bbs_BranchBit7:
 		{
-			byte value = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte value = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( isBitSet(7, value) )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1385,8 +1391,8 @@ void Processor::processOpcode()
 		}
 		case Cbne_DirectPage:
 		{
-			byte dpValue = readByte( getAddress(DirectPageAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte dpValue = readByte( decodeAddress(DirectPageAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( registers()->A() != dpValue )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1395,8 +1401,8 @@ void Processor::processOpcode()
 		}
 		case Cbne_DirectPagePlusX:
 		{
-			byte dpValue = readByte( getAddress(DirectPagePlusXAddressing) );
-			word newPc = getAddress(RelativeAddressing);
+			byte dpValue = readByte( decodeAddress(DirectPagePlusXAddressing) );
+			word newPc = decodeAddress(RelativeAddressing);
 			if( registers()->A() != dpValue )
 			{
 				registers()->setProgramCounter( newPc );
@@ -1405,12 +1411,12 @@ void Processor::processOpcode()
 		}
 		case Dbnz_DirectPage:
 		{
-			byte dpAddress = getAddress(DirectPageAddressing);
+			byte dpAddress = decodeAddress(DirectPageAddressing);
 			
 			byte dpValue = readByte(dpAddress);
 			writeByte(dpAddress, --dpValue);
 			
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			
 			if( dpValue != 0 )
 			{
@@ -1420,7 +1426,7 @@ void Processor::processOpcode()
 		}
 		case Dbnz_Y:
 		{
-			word newPc = getAddress(RelativeAddressing);
+			word newPc = decodeAddress(RelativeAddressing);
 			setYRegister( registers()->Y() - 1 );
 			
 			if( registers()->Y() != 0 )
@@ -1692,7 +1698,7 @@ void Processor::processOpcode()
 		}
 		case Tset1:
 		{
-			word absAddress = getAddress(AbsoluteAddressing);
+			word absAddress = decodeAddress(AbsoluteAddressing);
 			byte tempByte = readByte(absAddress);
 			
 			writeByte( absAddress, tempByte | registers()->A() );
@@ -1704,7 +1710,7 @@ void Processor::processOpcode()
 		}
 		case Tclr1:
 		{
-			word absAddress = getAddress(AbsoluteAddressing);
+			word absAddress = decodeAddress(AbsoluteAddressing);
 			byte tempByte = readByte(absAddress);
 			
 			writeByte( absAddress, tempByte & ~registers()->A() );
@@ -1887,11 +1893,14 @@ byte Processor::readByte()
 {
 	byte readByte = runner()->memory()->readByte( registers()->programCounter() );
 	registers()->incrementProgramCounter();
+	d->lastAddress = registers()->programCounter();
 	return readByte;
 }
 
 byte Processor::readByte(word address) const
 {
+	d->lastAddress = address;
+	
 	return runner()->memory()->readByte( address );
 }
 
@@ -1902,21 +1911,28 @@ word Processor::readWord()
 	// because a word is 2 bytes (aka 16bit)
 	registers()->setProgramCounter( registers()->programCounter() + 2);
 	
+	d->lastAddress = registers()->programCounter();
 	return readWord;
 }
 
 word Processor::readWord(word address) const
 {
+	d->lastAddress = address;
+	
 	return runner()->memory()->readWord( address );
 }
 
 void Processor::writeByte(word address, byte value)
 {
+	d->lastAddress = address;
+	
 	runner()->memory()->writeByte(address, value);
 }
 
 void Processor::writeWord(word address, word value)
 {
+	d->lastAddress = address;
+	
 	runner()->memory()->writeWord(address, value);
 }
 
@@ -2121,7 +2137,7 @@ void Processor::updateOverflowFlag(int value)
 	}
 }
 
-word Processor::getAddress(Processor::AddressingMode mode)
+word Processor::decodeAddress(Processor::AddressingMode mode)
 {
 	word address = 0;
 
@@ -2315,7 +2331,7 @@ void Processor::doTcall(byte tableIndex)
 
 void Processor::doSetBit(int bit)
 {
-	word dpAddress = getAddress(DirectPageAddressing);
+	word dpAddress = decodeAddress(DirectPageAddressing);
 	byte tempByte = readByte( dpAddress );
 
 	tempByte |= 1<<bit;
@@ -2325,7 +2341,7 @@ void Processor::doSetBit(int bit)
 
 void Processor::doClearBit(int bit)
 {
-	word dpAddress = getAddress(DirectPageAddressing);
+	word dpAddress = decodeAddress(DirectPageAddressing);
 	byte tempByte = readByte( dpAddress );
 
 	tempByte = tempByte & ~(1<<bit);
