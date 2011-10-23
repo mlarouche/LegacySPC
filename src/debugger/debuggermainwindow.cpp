@@ -26,6 +26,7 @@
 #include "debuggercentralwidget.h"
 #include "emulatorcontroller.h"
 #include "registerdockwidget.h"
+#include "memoryviewdockwidget.h"
 
 class DebuggerMainWindow::Private
 {
@@ -89,8 +90,15 @@ void DebuggerMainWindow::initDockWidgets()
 {
 	RegisterDockWidget *registerWidget = new RegisterDockWidget(this);
 	addDockWidget( Qt::RightDockWidgetArea, registerWidget );
-
+	
 	connect(d->controller, SIGNAL(processorUpdated(LegacySPC::Processor *)), registerWidget, SLOT(processorUpdated(LegacySPC::Processor*)));
+	
+	MemoryViewDockWidget *memoryViewWidget = new MemoryViewDockWidget(this);
+	memoryViewWidget->setMemoryReference( d->controller->memory() );
+	
+	addDockWidget( Qt::BottomDockWidgetArea, memoryViewWidget );
+	
+	connect(d->controller, SIGNAL(processorUpdated(LegacySPC::Processor*)), memoryViewWidget, SLOT(processorUpdated(LegacySPC::Processor*)));
 }
 
 void DebuggerMainWindow::fileLoad()
