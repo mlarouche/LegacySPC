@@ -19,6 +19,7 @@
 #include <vector>
 #include <cctype>
 #include <sstream>
+#include <cstdlib>
 
 // Local includes
 #include "processorregisters.h"
@@ -31,7 +32,7 @@ using namespace std;
 namespace LegacySPC
 {
 
-const std::string SpcMagicHeader("SNES-SPC700 Sound File Data v0.30");
+static const char SpcMagicHeader[] = "SNES-SPC700 Sound File Data v0.30";
 
 class SpcFileLoader::Private
 {
@@ -125,11 +126,9 @@ bool SpcFileLoader::Private::checkMagicHeader()
 
 	fileLoader.get(header, 34);
 
-	string readMagicHeader(header);
+	lDebug() << "Read magic header:" << string(header);
 
-	lDebug() << "Read magic header:" << readMagicHeader;
-
-	if( readMagicHeader == SpcMagicHeader )
+	if( memcmp(header,SpcMagicHeader,34) == 0 )
 	{
 		return true;
 	}
