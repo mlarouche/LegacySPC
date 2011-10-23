@@ -1405,8 +1405,13 @@ void Processor::processOpcode()
 		}
 		case Dbnz_DirectPage:
 		{
-			byte dpValue = readByte( getAddress(DirectPageAddressing) );
+			byte dpAddress = getAddress(DirectPageAddressing);
+			
+			byte dpValue = readByte(dpAddress);
+			writeByte(dpAddress, --dpValue);
+			
 			word newPc = getAddress(RelativeAddressing);
+			
 			if( dpValue != 0 )
 			{
 				registers()->setProgramCounter( newPc );

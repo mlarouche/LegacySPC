@@ -16,7 +16,7 @@
 
 #include "commandtestbase.h"
 
-TEST_F(CommandTestBase, ShouldDecreaseYinDBNZCommand)
+TEST_F(CommandTestBase, Should_Decrease_Y_in_DBNZ_Opcode)
 {
 	const int dataSize = 2;
 	byte data[dataSize] =
@@ -32,4 +32,23 @@ TEST_F(CommandTestBase, ShouldDecreaseYinDBNZCommand)
 	processOpcode();
 	
 	EXPECT_EQ(2, processor()->registers()->Y());
+}
+
+TEST_F(CommandTestBase, Should_Decrease_DirectPage_In_DBNZ_Opcode)
+{
+	const int dataSize = 4;
+	byte data[dataSize] =
+	{
+		// DBNZ dp, $0xf1
+		0xA,
+		Dbnz_DirectPage, 0x0, 0xf1
+	};
+	
+	loadRawData(data, dataSize);
+	
+	processor()->registers()->setProgramCounter(1);
+	
+	processOpcode();
+	
+	EXPECT_EQ(0x9, runner()->memory()->readByte(0));
 }
