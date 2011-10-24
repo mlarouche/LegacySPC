@@ -17,9 +17,9 @@
 // STL includes
 #include <fstream>
 #include <vector>
-#include <cctype>
+#include <cstdlib>
 #include <sstream>
-#include <cstdio>
+#include <cstring>
 
 // Local includes
 #include "processorregisters.h"
