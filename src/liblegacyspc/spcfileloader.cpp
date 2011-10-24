@@ -19,7 +19,7 @@
 #include <vector>
 #include <cctype>
 #include <sstream>
-#include <cstdlib>
+#include <cstdio>
 
 // Local includes
 #include "processorregisters.h"
