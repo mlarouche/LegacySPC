@@ -190,7 +190,7 @@ private:
 	 * @param v2 Second operand
 	 * @return Result as a byte
 	 */
-	byte doAnd(byte v1, byte v1);
+	byte doAnd(byte v1, byte v2);
 
 	/**
 	 * @internal
